@@ -1,0 +1,6 @@
+name: BungeeCordStaffChat
+version: "3.0"
+main: me.thealgorithm476.bcsc.BCSC
+softdepend: [LuckPerms]
+author: TheAlgorithm476
+description: A simple, straight-forward way to communicate with Staff on your Bungee network!
