@@ -17,7 +17,7 @@
 # General Settings #
 ####################
 general:
-  config-version: 2
+  config-version: 3
   metrics: true
 
 #######################
@@ -34,9 +34,11 @@ prefix: "#"
 ############
 messageprefix: "[&b&lBCSC&r] &7> &r"
 
-# Following Section can make use of Placeholders, specified below.
-#   {DISPLAYNAME}   DisplayName of the Sender (Uses LuckPerms. If you don't have LuckPerms installed, this will return {PLAYERNAME})
+# Following section can make use of Placeholders, specified below.
 #   {PLAYERNAME}    Name of the Sender
-#   {SERVER}        Server the Sender is currently connected to
-#   {MESSAGE}       The Message sent by the Sender
+#   {SERVER}        Server the sender is currently connected to
+#   {MESSAGE}       The message sent by the sender
+#   {PREFIX}        The prefix of the sender (Makes use of LuckPerms. Will be ignored if LuckPerms isn't installed)
+#   {SUFFIX}        The suffix of the sender (Makes use of LuckPerms. Will be ignored if LuckPerms isn't installed)
+#   {DISPLAYNAME}   Short form for "{PREFIX} {PLAYERNAME} {SUFFIX}"
 staffchat: "[&b&lBCSC&r] &b{DISPLAYNAME} &r[{SERVER}] &7> &r{MESSAGE}"

@@ -151,6 +151,36 @@ public final class BCSC extends Plugin {
                 instance.getLogger().info("Upgrade to Config v2 completed.");
             }
 
+            ConfigValues.getInstance().populate(config);
+
+            if (ConfigValues.getInstance().general_config_version == 2) {
+                instance.getLogger().warning("Config v2 detected! Upgrading to v3...");
+                List<String> lines = new ArrayList<>();
+
+                try (InputStream stream = BCSC.class.getClassLoader().getResourceAsStream("config.yml")) {
+                    if (stream == null) throw new IOException("Stream is null");
+
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+                        String line;
+
+                        while ((line = reader.readLine()) != null) lines.add(line);
+                    }
+                }
+
+                String file = lines.stream().map(line -> line
+                        .replace("metrics: true", "metrics: " + ConfigValues.getInstance().general_metrics)
+                        .replace("prefix: true", "prefix: " + ConfigValues.getInstance().modules_enabled_prefix)
+                        .replace("command: true", "command: " + ConfigValues.getInstance().modules_enabled_command)
+                        .replace("toggle: true", "toggle: " + ConfigValues.getInstance().modules_enabled_toggle)
+                        .replace("prefix: \"#\"", "prefix: \"" + ConfigValues.getInstance().prefix + "\"")
+                        .replace("messageprefix: \"[&b&lBCSC&r] &7> &r\"", "messageprefix: \"" + ConfigValues.getInstance().messageprefix + "\"")
+                        .replace("staffchat: \"[&b&lBCSC&r] &b{DISPLAYNAME} &r[{SERVER}] &7> &r{MESSAGE}\"", "staffchat: \"" + ConfigValues.getInstance().staffchat + "\"")
+                ).collect(Collectors.joining("\n"));
+                Files.writeString(new File(instance.getDataFolder(), "config.yml").toPath(), file, StandardOpenOption.TRUNCATE_EXISTING);
+
+                instance.getLogger().info("Upgrade to Config v3 completed.");
+            }
+
             return true;
         } catch (IOException exception) {
             instance.getLogger().warning("Something went wrong whilst loading the config!");
@@ -165,9 +195,31 @@ public final class BCSC extends Plugin {
         return new TextComponent(ChatColor.translateAlternateColorCodes('&', ConfigValues.getInstance().staffchat)
                 .replace("{PLAYERNAME}", player.getName())
                 .replace("{DISPLAYNAME}", getDisplayName(player))
+                .replace("{PREFIX}", getPrefix(player))
+                .replace("{SUFFIX}", getSuffix(player))
                 .replace("{SERVER}", player.getServer().getInfo().getName())
                 .replace("{MESSAGE}", message)
         );
+    }
+
+    private static String getPrefix(ProxiedPlayer player) {
+        if (!(instance.lpInstalled)) return "";
+
+        User user = instance.luckPerms.getUserManager().getUser(player.getUniqueId());
+
+        if (user == null) return "";
+
+        return user.getCachedData().getMetaData().getPrefix();
+    }
+
+    private static String getSuffix(ProxiedPlayer player) {
+        if (!(instance.lpInstalled)) return "";
+
+        User user = instance.luckPerms.getUserManager().getUser(player.getUniqueId());
+
+        if (user == null) return "";
+
+        return user.getCachedData().getMetaData().getSuffix();
     }
 
     private static String getDisplayName(ProxiedPlayer player) {
