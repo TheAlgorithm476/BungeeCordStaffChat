@@ -3,9 +3,7 @@ package me.thealgorithm476.bcsc;
 import me.thealgorithm476.bcsc.commands.StaffChatCommand;
 import me.thealgorithm476.bcsc.events.BcscEventListener;
 import me.thealgorithm476.bcsc.metrics.Metrics;
-import net.luckperms.api.LuckPerms;
-import net.luckperms.api.LuckPermsProvider;
-import net.luckperms.api.model.user.User;
+import me.thealgorithm476.bcsc.util.LuckPermsUtil;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -14,20 +12,24 @@ import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public final class BCSC extends Plugin {
     private static BCSC instance;
 
     private static final Map<UUID, Boolean> toggledStaffChats = new HashMap<>();
-
-    private boolean lpInstalled;
-    private LuckPerms luckPerms;
 
     @Override
     public void onLoad() { instance = this; }
@@ -92,13 +94,7 @@ public final class BCSC extends Plugin {
     }
 
     private void loadDependencies() {
-        try {
-            this.luckPerms = LuckPermsProvider.get();
-            this.lpInstalled = true;
-        } catch (IllegalStateException | NoClassDefFoundError ignored) {
-            this.getLogger().warning("LuckPerms is not installed! Display Names will not function as expected!");
-            this.lpInstalled = false;
-        }
+        if (!(LuckPermsUtil.isLuckPermsInstalled())) getLogger().warning("LuckPerms is not installed! Prefixes, Suffixes, and Display Names may not work as expected!");
     }
 
     public static void toggleStaffChat(ProxiedPlayer player) {
@@ -192,47 +188,20 @@ public final class BCSC extends Plugin {
     }
 
     public static TextComponent composeMessage(ProxiedPlayer player, String message) {
+        String prefix = LuckPermsUtil.getPrefix(player);
+        String suffix = LuckPermsUtil.getSuffix(player);
+
+        if (prefix == null) prefix = "";
+        if (suffix == null) suffix = "";
+
         return new TextComponent(ChatColor.translateAlternateColorCodes('&', ConfigValues.getInstance().staffchat)
                 .replace("{PLAYERNAME}", player.getName())
-                .replace("{DISPLAYNAME}", getDisplayName(player))
-                .replace("{PREFIX}", getPrefix(player))
-                .replace("{SUFFIX}", getSuffix(player))
+                .replace("{DISPLAYNAME}", LuckPermsUtil.getDisplayName(player))
+                .replace("{PREFIX}", prefix)
+                .replace("{SUFFIX}", suffix)
                 .replace("{SERVER}", player.getServer().getInfo().getName())
                 .replace("{MESSAGE}", message)
         );
-    }
-
-    private static String getPrefix(ProxiedPlayer player) {
-        if (!(instance.lpInstalled)) return "";
-
-        User user = instance.luckPerms.getUserManager().getUser(player.getUniqueId());
-
-        if (user == null) return "";
-
-        return user.getCachedData().getMetaData().getPrefix();
-    }
-
-    private static String getSuffix(ProxiedPlayer player) {
-        if (!(instance.lpInstalled)) return "";
-
-        User user = instance.luckPerms.getUserManager().getUser(player.getUniqueId());
-
-        if (user == null) return "";
-
-        return user.getCachedData().getMetaData().getSuffix();
-    }
-
-    private static String getDisplayName(ProxiedPlayer player) {
-        if (!(instance.lpInstalled)) return player.getName();
-
-        User user = instance.luckPerms.getUserManager().getUser(player.getUniqueId());
-
-        if (user == null) return player.getName();
-
-        String prefix = user.getCachedData().getMetaData().getPrefix();
-        String suffix = user.getCachedData().getMetaData().getSuffix();
-
-        return ChatColor.translateAlternateColorCodes('&', String.format("%s%s%s", prefix == null ? "" : prefix, player.getName(), suffix == null ? "" : suffix));
     }
 
     public static BCSC getInstance() { return instance; }
