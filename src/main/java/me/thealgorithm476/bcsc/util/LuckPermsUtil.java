@@ -19,7 +19,12 @@ public final class LuckPermsUtil {
         User user = getUser(player);
 
         if (user == null) return null;
-        return user.getCachedData().getMetaData().getPrefix();
+
+        String prefix = user.getCachedData().getMetaData().getPrefix();
+
+        if (prefix == null) return null;
+
+        return ChatColor.translateAlternateColorCodes('&', prefix);
     }
 
     @Nullable
@@ -27,7 +32,12 @@ public final class LuckPermsUtil {
         User user = getUser(player);
 
         if (user == null) return null;
-        return user.getCachedData().getMetaData().getSuffix();
+
+        String suffix = user.getCachedData().getMetaData().getSuffix();
+
+        if (suffix == null) return null;
+
+        return ChatColor.translateAlternateColorCodes('&', suffix);
     }
 
     @NotNull

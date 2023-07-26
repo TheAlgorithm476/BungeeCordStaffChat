@@ -1,5 +1,5 @@
 name: BungeeCordStaffChat
-version: "3.2-beta"
+version: "3.2"
 main: me.thealgorithm476.bcsc.BCSC
 softdepend: [LuckPerms]
 author: TheAlgorithm476
