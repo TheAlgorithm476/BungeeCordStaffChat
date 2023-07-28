@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "me.thealgorithm476"
-version = "3.2"
+version = "3.3-beta"
 
 repositories {
     mavenCentral()

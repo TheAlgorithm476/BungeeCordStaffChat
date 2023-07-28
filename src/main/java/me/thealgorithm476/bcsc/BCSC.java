@@ -73,7 +73,12 @@ public final class BCSC extends Plugin {
         this.getLogger().info("Loading Dependencies...");
         this.loadDependencies();
 
-        if (ConfigValues.getInstance().general_metrics) new Metrics(this, 7547);
+        if (ConfigValues.getInstance().general_metrics) {
+            Metrics metrics = new Metrics(this, 7547);
+
+            metrics.addCustomChart(new Metrics.SimplePie("check_for_updates", () -> ConfigValues.getInstance().updates_check_for_updates ? "Enabled" : "Disabled"));
+            metrics.addCustomChart(new Metrics.SimplePie("auto_update", () -> ConfigValues.getInstance().updates_auto_update ? "Enabled" : "Disabled"));
+        }
 
         this.getLogger().info("BCSC " + this.getDescription().getVersion() + " has been enabled.");
     }
@@ -151,6 +156,36 @@ public final class BCSC extends Plugin {
 
             if (ConfigValues.getInstance().general_config_version == 2) {
                 instance.getLogger().warning("Config v2 detected! Upgrading to v3...");
+                List<String> lines = new ArrayList<>();
+
+                try (InputStream stream = BCSC.class.getClassLoader().getResourceAsStream("config.yml")) {
+                    if (stream == null) throw new IOException("Stream is null");
+
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+                        String line;
+
+                        while ((line = reader.readLine()) != null) lines.add(line);
+                    }
+                }
+
+                String file = lines.stream().map(line -> line
+                        .replace("metrics: true", "metrics: " + ConfigValues.getInstance().general_metrics)
+                        .replace("prefix: true", "prefix: " + ConfigValues.getInstance().modules_enabled_prefix)
+                        .replace("command: true", "command: " + ConfigValues.getInstance().modules_enabled_command)
+                        .replace("toggle: true", "toggle: " + ConfigValues.getInstance().modules_enabled_toggle)
+                        .replace("prefix: \"#\"", "prefix: \"" + ConfigValues.getInstance().prefix + "\"")
+                        .replace("messageprefix: \"[&b&lBCSC&r] &7> &r\"", "messageprefix: \"" + ConfigValues.getInstance().messageprefix + "\"")
+                        .replace("staffchat: \"[&b&lBCSC&r] &b{DISPLAYNAME} &r[{SERVER}] &7> &r{MESSAGE}\"", "staffchat: \"" + ConfigValues.getInstance().staffchat + "\"")
+                ).collect(Collectors.joining("\n"));
+                Files.writeString(new File(instance.getDataFolder(), "config.yml").toPath(), file, StandardOpenOption.TRUNCATE_EXISTING);
+
+                instance.getLogger().info("Upgrade to Config v3 completed.");
+            }
+
+            ConfigValues.getInstance().populate(config);
+
+            if (ConfigValues.getInstance().general_config_version == 3) {
+                instance.getLogger().warning("Config v3 detected! Upgrading to v4...");
                 List<String> lines = new ArrayList<>();
 
                 try (InputStream stream = BCSC.class.getClassLoader().getResourceAsStream("config.yml")) {

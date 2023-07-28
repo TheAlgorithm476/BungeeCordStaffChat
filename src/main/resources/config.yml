@@ -17,7 +17,7 @@
 # General Settings #
 ####################
 general:
-  config-version: 3
+  config-version: 4
   metrics: true
 
 #######################
@@ -42,3 +42,10 @@ messageprefix: "[&b&lBCSC&r] &7> &r"
 #   {SUFFIX}        The suffix of the sender (Makes use of LuckPerms. Will be ignored if LuckPerms isn't installed)
 #   {DISPLAYNAME}   Short form for "{PREFIX} {PLAYERNAME} {SUFFIX}"
 staffchat: "[&b&lBCSC&r] &b{DISPLAYNAME} &r[{SERVER}] &7> &r{MESSAGE}"
+
+############
+# Updating #
+############
+updates:
+  check-for-updates: true
+  auto-update: false

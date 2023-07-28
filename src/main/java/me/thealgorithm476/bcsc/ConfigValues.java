@@ -13,6 +13,8 @@ public class ConfigValues {
     public String prefix;
     public String messageprefix;
     public String staffchat;
+    public boolean updates_check_for_updates;
+    public boolean updates_auto_update;
 
     private ConfigValues() {}
 
@@ -25,6 +27,8 @@ public class ConfigValues {
         this.prefix = config.getString("prefix");
         this.messageprefix = config.getString("messageprefix");
         this.staffchat = config.getString("staffchat");
+        this.updates_check_for_updates = config.getBoolean("updates.check-for-updates");
+        this.updates_auto_update = config.getBoolean("updates.auto-update");
     }
 
     public static ConfigValues getInstance() {
